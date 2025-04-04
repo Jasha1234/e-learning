@@ -177,10 +177,10 @@ function NavItem({ icon, label, path }: NavItemProps) {
   return (
     <li className="mb-1">
       <Link href={path}>
-        <a className={`flex items-center p-3 rounded-lg text-textColor hover:bg-background ${isActive ? 'active-nav-item' : ''}`}>
+        <div className={`flex items-center p-3 rounded-lg text-textColor hover:bg-background ${isActive ? 'active-nav-item' : ''}`}>
           <i className={`${icon} text-xl mr-3`}></i>
           <span>{label}</span>
-        </a>
+        </div>
       </Link>
     </li>
   );

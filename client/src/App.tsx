@@ -114,16 +114,36 @@ function Router() {
         <PrivateRoute component={StudentDashboard} roles={["student"]} />
       </Route>
       
+      <Route path="/student/courses">
+        <PrivateRoute component={CourseManagement} roles={["student"]} />
+      </Route>
+      
       <Route path="/student/courses/:id">
         {(params) => (
           <PrivateRoute component={CourseDetail} roles={["student"]} id={params.id} />
         )}
       </Route>
       
+      <Route path="/student/assignments">
+        <PrivateRoute component={AssignmentManagement} roles={["student"]} />
+      </Route>
+      
       <Route path="/student/assignments/:id">
         {(params) => (
           <PrivateRoute component={AssignmentDetail} roles={["student"]} id={params.id} />
         )}
+      </Route>
+      
+      <Route path="/student/grades">
+        <PrivateRoute component={() => <h1 className="p-6 text-2xl">Student Grades</h1>} roles={["student"]} />
+      </Route>
+      
+      <Route path="/student/schedule">
+        <PrivateRoute component={() => <h1 className="p-6 text-2xl">Student Schedule</h1>} roles={["student"]} />
+      </Route>
+      
+      <Route path="/student/announcements">
+        <PrivateRoute component={() => <h1 className="p-6 text-2xl">Student Announcements</h1>} roles={["student"]} />
       </Route>
       
       {/* Default route redirect */}

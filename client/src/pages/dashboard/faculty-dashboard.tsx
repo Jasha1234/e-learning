@@ -54,9 +54,9 @@ export default function FacultyDashboard() {
         </div>
         <div className="mt-4 md:mt-0 flex space-x-3">
           <Link href="/faculty/courses">
-            <a className="btn-primary">
+            <div className="btn-primary cursor-pointer">
               <i className="ri-add-line mr-2"></i> Create New Course
-            </a>
+            </div>
           </Link>
         </div>
       </div>
@@ -143,9 +143,9 @@ export default function FacultyDashboard() {
             <div className="col-span-3 text-center py-12">
               <p className="text-gray-500">No courses found. Create your first course!</p>
               <Link href="/faculty/courses">
-                <a className="btn-primary mt-4 inline-block">
+                <div className="btn-primary mt-4 inline-block cursor-pointer">
                   <i className="ri-add-line mr-2"></i> Create New Course
-                </a>
+                </div>
               </Link>
             </div>
           ) : (
@@ -190,13 +190,13 @@ export default function FacultyDashboard() {
                     </div>
                     <div className="mt-4 border-t pt-4 flex justify-between">
                       <Link href={`/faculty/courses/${course.id}`}>
-                        <a className="text-sm text-primary font-medium">Course Details</a>
+                        <div className="text-sm text-primary font-medium cursor-pointer">Course Details</div>
                       </Link>
                       <Link href={`/faculty/assignments?courseId=${course.id}`}>
-                        <a className="text-sm text-gray-600 font-medium">Assignments</a>
+                        <div className="text-sm text-gray-600 font-medium cursor-pointer">Assignments</div>
                       </Link>
                       <Link href={`/faculty/grading?courseId=${course.id}`}>
-                        <a className="text-sm text-gray-600 font-medium">Grades</a>
+                        <div className="text-sm text-gray-600 font-medium cursor-pointer">Grades</div>
                       </Link>
                     </div>
                   </div>
@@ -212,9 +212,9 @@ export default function FacultyDashboard() {
         <div className="flex items-center justify-between mb-6">
           <h3 className="font-poppins font-semibold text-lg">Recent Assignments</h3>
           <Link href="/faculty/assignments">
-            <a className="btn-primary">
+            <div className="btn-primary cursor-pointer">
               <i className="ri-add-line mr-1"></i> Create Assignment
-            </a>
+            </div>
           </Link>
         </div>
         
@@ -290,9 +290,9 @@ export default function FacultyDashboard() {
                     <td className="px-4 py-4 whitespace-nowrap text-sm">
                       <div className="flex space-x-2">
                         <Link href={`/faculty/assignments/${index + 1}`}>
-                          <a className="p-1 text-gray-500 hover:text-primary">
+                          <div className="p-1 text-gray-500 hover:text-primary cursor-pointer">
                             <i className="ri-eye-line"></i>
-                          </a>
+                          </div>
                         </Link>
                         <button className="p-1 text-gray-500 hover:text-primary">
                           <i className="ri-pencil-line"></i>

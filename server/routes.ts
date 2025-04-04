@@ -51,6 +51,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
   };
 
   // Authentication routes
+  app.post("/api/auth/register", async (req, res) => {
+    const { username, password, firstName, lastName, email, role = "student" } = req.body;
+    
+    if (!username || !password || !firstName || !lastName || !email) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+    
+    try {
+      // Check if username already exists
+      const existingUser = await storage.getUserByUsername(username);
+      
+      if (existingUser) {
+        return res.status(400).json({ message: "Username already exists" });
+      }
+      
+      // Create the new user
+      const user = await storage.createUser({
+        username,
+        password,
+        firstName,
+        lastName,
+        email,
+        role: role as "admin" | "faculty" | "student"
+      });
+      
+      // Set user session data
+      req.session.userId = user.id;
+      req.session.userRole = user.role;
+      req.session.username = user.username;
+      
+      // Return user data without password
+      res.status(201).json({
+        id: user.id,
+        username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        role: user.role,
+        profileImage: user.profileImage
+      });
+    } catch (error) {
+      console.error("Registration error:", error);
+      res.status(500).json({ message: "Error during registration" });
+    }
+  });
+
   app.post("/api/auth/login", async (req, res) => {
     const { username, password } = req.body;
     

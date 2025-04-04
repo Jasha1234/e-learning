@@ -14,12 +14,23 @@ export interface User {
   department?: string;
 }
 
+// Registration data type
+export interface RegisterData {
+  username: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role?: "student" | "faculty" | "admin";
+}
+
 // Auth context type
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (username: string, password: string) => Promise<User>;
   logout: () => Promise<void>;
+  register: (data: RegisterData) => Promise<User>;
 }
 
 // Create the auth context
@@ -87,12 +98,32 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
   
+  // Register function
+  const register = async (data: RegisterData): Promise<User> => {
+    try {
+      // Set default role to student if not provided
+      const registerData = {
+        ...data,
+        role: data.role || "student"
+      };
+      
+      const response = await apiRequest("POST", "/api/auth/register", registerData);
+      const userData = await response.json();
+      setUser(userData);
+      return userData;
+    } catch (error) {
+      console.error("Registration failed:", error);
+      throw error;
+    }
+  };
+  
   // Auth context value
   const value = {
     user,
     loading,
     login,
-    logout
+    logout,
+    register
   };
   
   return (

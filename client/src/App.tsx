@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import { Switch, Route, useLocation, useRoute } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import AppShell from "@/components/layouts/app-shell";
-import Login from "@/pages/login";
+import AuthPage from "@/pages/auth-page";
 import NotFound from "@/pages/not-found";
 import AdminDashboard from "@/pages/dashboard/admin-dashboard";
 import FacultyDashboard from "@/pages/dashboard/faculty-dashboard";
@@ -30,7 +30,7 @@ function PrivateRoute({
   
   useEffect(() => {
     if (!loading && !user) {
-      navigate("/login");
+      navigate("/auth");
     } else if (!loading && user && !roles.includes(user.role)) {
       // Redirect to appropriate dashboard based on role
       if (user.role === "admin") {
@@ -58,12 +58,37 @@ function PrivateRoute({
   return <Component {...rest} />;
 }
 
-function Router() {
+// Wrapper for AuthPage to avoid hooks issues
+const AuthPageWrapper = () => <AuthPage />;
+
+// Home route component for root path redirection
+function HomeRoute() {
   const { user } = useAuth();
+  const [, navigate] = useLocation();
   
+  useEffect(() => {
+    if (user) {
+      if (user.role === "admin") {
+        navigate("/admin/dashboard");
+      } else if (user.role === "faculty") {
+        navigate("/faculty/dashboard");
+      } else if (user.role === "student") {
+        navigate("/student/dashboard");
+      }
+    } else {
+      navigate("/auth");
+    }
+  }, [user, navigate]);
+  
+  return null;
+}
+
+function AppRouter() {
   return (
     <Switch>
-      <Route path="/login" component={Login} />
+      <Route path="/login" component={AuthPageWrapper} />
+      <Route path="/auth" component={AuthPageWrapper} />
+      <Route path="/" component={HomeRoute} />
       
       {/* Admin Routes */}
       <Route path="/admin/dashboard">
@@ -146,29 +171,6 @@ function Router() {
         <PrivateRoute component={() => <h1 className="p-6 text-2xl">Student Announcements</h1>} roles={["student"]} />
       </Route>
       
-      {/* Default route redirect */}
-      <Route path="/">
-        {() => {
-          const [, navigate] = useLocation();
-          
-          useEffect(() => {
-            if (user) {
-              if (user.role === "admin") {
-                navigate("/admin/dashboard");
-              } else if (user.role === "faculty") {
-                navigate("/faculty/dashboard");
-              } else if (user.role === "student") {
-                navigate("/student/dashboard");
-              }
-            } else {
-              navigate("/login");
-            }
-          }, [user, navigate]);
-          
-          return null;
-        }}
-      </Route>
-      
       {/* Fallback to 404 */}
       <Route component={NotFound} />
     </Switch>
@@ -180,7 +182,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <AppShell>
-          <Router />
+          <AppRouter />
         </AppShell>
         <Toaster />
       </AuthProvider>

@@ -296,43 +296,55 @@ export default function AuthPage() {
             </Tabs>
           </CardContent>
           
-          <CardFooter className="flex flex-col space-y-2">
-            <div className="text-center text-sm text-gray-500">
-              <span>Quick access:</span>
+          <CardFooter className="flex flex-col space-y-3">
+            <div className="text-center text-sm font-medium text-gray-700 border-t pt-2">
+              <span>Quick demo access</span>
             </div>
-            <div className="flex flex-wrap justify-center gap-2">
+            <div className="grid grid-cols-3 gap-2 w-full">
               <Button 
-                variant="outline" 
+                variant="secondary" 
                 size="sm" 
                 onClick={() => {
                   loginForm.setValue("username", "admin");
                   loginForm.setValue("password", "password123");
+                  // Auto-submit after a short delay
+                  setTimeout(() => {
+                    loginForm.handleSubmit(onLoginSubmit)();
+                  }, 300);
                 }}
-                className="text-xs"
+                className="text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200"
               >
-                Admin Demo
+                Admin
               </Button>
               <Button 
-                variant="outline" 
+                variant="secondary" 
                 size="sm" 
                 onClick={() => {
                   loginForm.setValue("username", "faculty1");
                   loginForm.setValue("password", "password123");
+                  // Auto-submit after a short delay
+                  setTimeout(() => {
+                    loginForm.handleSubmit(onLoginSubmit)();
+                  }, 300);
                 }}
-                className="text-xs"
+                className="text-xs bg-green-50 hover:bg-green-100 text-green-700 border border-green-200"
               >
-                Faculty Demo
+                Faculty
               </Button>
               <Button 
-                variant="outline" 
+                variant="secondary" 
                 size="sm" 
                 onClick={() => {
                   loginForm.setValue("username", "student1");
                   loginForm.setValue("password", "password123");
+                  // Auto-submit after a short delay
+                  setTimeout(() => {
+                    loginForm.handleSubmit(onLoginSubmit)();
+                  }, 300);
                 }}
-                className="text-xs"
+                className="text-xs bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200"
               >
-                Student Demo
+                Student
               </Button>
             </div>
           </CardFooter>

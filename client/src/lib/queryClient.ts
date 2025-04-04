@@ -1,5 +1,13 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
+// Function to convert API paths for Netlify
+function getNetlifyPath(url: string): string {
+  if (url.startsWith('/api/')) {
+    return `/.netlify/functions/api${url.substring(4)}`;
+  }
+  return url;
+}
+
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
     const text = (await res.text()) || res.statusText;
@@ -12,7 +20,10 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
-  const res = await fetch(url, {
+  // Convert /api/* paths to /.netlify/functions/api/*
+  const netlifyUrl = getNetlifyPath(url);
+  
+  const res = await fetch(netlifyUrl, {
     method,
     headers: data ? { "Content-Type": "application/json" } : {},
     body: data ? JSON.stringify(data) : undefined,
@@ -29,7 +40,10 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const res = await fetch(queryKey[0] as string, {
+    // Convert /api/* paths to /.netlify/functions/api/*
+    const netlifyUrl = getNetlifyPath(queryKey[0] as string);
+    
+    const res = await fetch(netlifyUrl, {
       credentials: "include",
     });
 

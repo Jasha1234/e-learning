@@ -1,0 +1,99 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 220 33% 98%;
+    --foreground: 217 33% 25%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 217 33% 25%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 217 33% 25%;
+    
+    --primary: 210 80% 50%;
+    --primary-foreground: 210 40% 98%;
+    
+    --secondary: 122 40% 45%;
+    --secondary-foreground: 210 40% 98%;
+    
+    --accent: 38 100% 50%;
+    --accent-foreground: 217 33% 25%;
+    
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+    
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 221 83% 53%;
+    
+    --chart-1: 210 80% 50%;
+    --chart-2: 122 40% 45%;
+    --chart-3: 38 100% 50%;
+    --chart-4: 340 82% 52%;
+    --chart-5: 262 83% 58%;
+    
+    --radius: 0.5rem;
+  }
+  
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground font-opensans antialiased;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-poppins;
+  }
+}
+
+@layer utilities {
+  .card-hover {
+    @apply transition-all duration-200 hover:-translate-y-1 hover:shadow-md;
+  }
+  
+  .active-nav-item {
+    @apply bg-primary/10 border-l-4 border-primary;
+  }
+}
+
+@layer components {
+  .stats-card {
+    @apply bg-white rounded-lg shadow-sm p-6 card-hover;
+  }
+  
+  .form-input {
+    @apply px-4 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-primary w-full;
+  }
+  
+  .btn-primary {
+    @apply px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium;
+  }
+  
+  .btn-secondary {
+    @apply px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium;
+  }
+  
+  .btn-success {
+    @apply px-4 py-2 bg-secondary text-white rounded-lg text-sm font-medium;
+  }
+  
+  .pill-active {
+    @apply px-2 py-1 text-xs bg-green-100 text-secondary rounded-full;
+  }
+  
+  .pill-pending {
+    @apply px-2 py-1 text-xs bg-amber-100 text-accent rounded-full;
+  }
+  
+  .pill-inactive {
+    @apply px-2 py-1 text-xs bg-red-100 text-destructive rounded-full;
+  }
+}

@@ -135,10 +135,10 @@ export default function AuthPage() {
   }
   
   return (
-    <div className="min-h-screen flex items-stretch">
+    <div className="min-h-screen flex flex-col md:flex-row items-stretch">
       {/* Left side - Form */}
-      <div className="w-full md:w-1/2 flex items-center justify-center p-4 md:p-8">
-        <Card className="w-full max-w-md">
+      <div className="w-full md:w-1/2 flex items-center justify-center p-4 md:p-8 order-last md:order-first">
+        <Card className="w-full max-w-md shadow-lg">
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
               <span className="text-primary text-4xl">
@@ -146,7 +146,7 @@ export default function AuthPage() {
               </span>
             </div>
             <CardTitle className="text-2xl font-poppins text-primary">EduLearn Platform</CardTitle>
-            <CardDescription>Sign in or create a new account</CardDescription>
+            <CardDescription className="px-2">Sign in or create a new account</CardDescription>
           </CardHeader>
           
           <CardContent>
@@ -206,7 +206,7 @@ export default function AuthPage() {
               <TabsContent value="register">
                 <Form {...registerForm}>
                   <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <FormField
                         control={registerForm.control}
                         name="firstName"
@@ -351,7 +351,15 @@ export default function AuthPage() {
         </Card>
       </div>
       
-      {/* Right side - Hero */}
+      {/* Mobile welcome banner - visible only on mobile */}
+      <div className="md:hidden w-full bg-primary/10 py-6 px-4 text-center order-first">
+        <h1 className="text-2xl font-bold text-primary mb-2">Welcome to EduLearn</h1>
+        <p className="text-sm">
+          Your comprehensive e-learning platform for students, faculty, and administrators
+        </p>
+      </div>
+      
+      {/* Right side - Hero - visible only on desktop */}
       <div className="hidden md:w-1/2 md:flex bg-primary/10 flex-col items-center justify-center p-8">
         <div className="max-w-md text-center">
           <h1 className="text-3xl md:text-4xl font-bold text-primary mb-4">Welcome to EduLearn</h1>

@@ -298,12 +298,42 @@ export default function AuthPage() {
           
           <CardFooter className="flex flex-col space-y-2">
             <div className="text-center text-sm text-gray-500">
-              <span>Login with demo accounts:</span>
+              <span>Quick access:</span>
             </div>
-            <div className="flex flex-wrap justify-center gap-2 text-xs">
-              <div className="px-2 py-1 bg-gray-100 rounded-full">admin / password123</div>
-              <div className="px-2 py-1 bg-gray-100 rounded-full">faculty1 / password123</div>
-              <div className="px-2 py-1 bg-gray-100 rounded-full">student1 / password123</div>
+            <div className="flex flex-wrap justify-center gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => {
+                  loginForm.setValue("username", "admin");
+                  loginForm.setValue("password", "password123");
+                }}
+                className="text-xs"
+              >
+                Admin Demo
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => {
+                  loginForm.setValue("username", "faculty1");
+                  loginForm.setValue("password", "password123");
+                }}
+                className="text-xs"
+              >
+                Faculty Demo
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => {
+                  loginForm.setValue("username", "student1");
+                  loginForm.setValue("password", "password123");
+                }}
+                className="text-xs"
+              >
+                Student Demo
+              </Button>
             </div>
           </CardFooter>
         </Card>

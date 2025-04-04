@@ -1,6 +1,7 @@
 import { pgTable, text, serial, integer, boolean, timestamp, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+import { relations } from 'drizzle-orm';
 
 // User schema with role-based access
 export const users = pgTable("users", {
@@ -105,3 +106,66 @@ export type Submission = typeof submissions.$inferSelect;
 
 export type InsertAnnouncement = z.infer<typeof insertAnnouncementSchema>;
 export type Announcement = typeof announcements.$inferSelect;
+
+// Define relations
+export const usersRelations = relations(users, ({ many }) => ({
+  taughtCourses: many(courses, { relationName: "faculty" }),
+  enrollments: many(enrollments, { relationName: "student" }),
+  submissions: many(submissions, { relationName: "student" }),
+  announcements: many(announcements, { relationName: "author" })
+}));
+
+export const coursesRelations = relations(courses, ({ one, many }) => ({
+  faculty: one(users, {
+    fields: [courses.facultyId],
+    references: [users.id],
+    relationName: "faculty"
+  }),
+  enrollments: many(enrollments),
+  assignments: many(assignments),
+  announcements: many(announcements)
+}));
+
+export const enrollmentsRelations = relations(enrollments, ({ one }) => ({
+  student: one(users, {
+    fields: [enrollments.studentId],
+    references: [users.id],
+    relationName: "student"
+  }),
+  course: one(courses, {
+    fields: [enrollments.courseId],
+    references: [courses.id]
+  })
+}));
+
+export const assignmentsRelations = relations(assignments, ({ one, many }) => ({
+  course: one(courses, {
+    fields: [assignments.courseId],
+    references: [courses.id]
+  }),
+  submissions: many(submissions)
+}));
+
+export const submissionsRelations = relations(submissions, ({ one }) => ({
+  assignment: one(assignments, {
+    fields: [submissions.assignmentId],
+    references: [assignments.id]
+  }),
+  student: one(users, {
+    fields: [submissions.studentId],
+    references: [users.id],
+    relationName: "student"
+  })
+}));
+
+export const announcementsRelations = relations(announcements, ({ one }) => ({
+  course: one(courses, {
+    fields: [announcements.courseId],
+    references: [courses.id]
+  }),
+  author: one(users, {
+    fields: [announcements.userId],
+    references: [users.id],
+    relationName: "author"
+  })
+}));

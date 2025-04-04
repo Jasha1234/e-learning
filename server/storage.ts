@@ -575,4 +575,525 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+import { db } from "./db";
+import { and, eq, sql, desc } from "drizzle-orm";
+
+export class DatabaseStorage implements IStorage {
+  // User operations
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
+  }
+
+  async getUsers(): Promise<User[]> {
+    return await db.select().from(users);
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db.insert(users).values(insertUser).returning();
+    return user;
+  }
+
+  async updateUser(id: number, userData: Partial<User>): Promise<User | undefined> {
+    const [updatedUser] = await db.update(users)
+      .set(userData)
+      .where(eq(users.id, id))
+      .returning();
+    return updatedUser;
+  }
+
+  async deleteUser(id: number): Promise<boolean> {
+    const [deletedUser] = await db.delete(users)
+      .where(eq(users.id, id))
+      .returning();
+    return !!deletedUser;
+  }
+  
+  // Course operations
+  async getCourse(id: number): Promise<Course | undefined> {
+    const [course] = await db.select().from(courses).where(eq(courses.id, id));
+    return course || undefined;
+  }
+
+  async getCourses(): Promise<Course[]> {
+    return await db.select().from(courses);
+  }
+
+  async getCoursesByFaculty(facultyId: number): Promise<Course[]> {
+    return await db.select().from(courses).where(eq(courses.facultyId, facultyId));
+  }
+
+  async getCoursesByStudent(studentId: number): Promise<(Course & { progress: number })[]> {
+    // First, get all courses the student is enrolled in
+    const coursesQuery = await db
+      .select({
+        id: courses.id,
+        code: courses.code,
+        name: courses.name,
+        description: courses.description,
+        facultyId: courses.facultyId,
+        semester: courses.semester,
+        year: courses.year,
+        status: courses.status,
+        startDate: courses.startDate,
+        endDate: courses.endDate,
+        thumbnail: courses.thumbnail,
+        progress: sql<number>`50` // Placeholder for now
+      })
+      .from(courses)
+      .innerJoin(enrollments, eq(enrollments.courseId, courses.id))
+      .where(eq(enrollments.studentId, studentId));
+    
+    return coursesQuery.map(course => ({
+      ...course,
+      progress: 50 // Hardcoded for now, will implement calculation later
+    }));
+  }
+
+  async createCourse(insertCourse: InsertCourse): Promise<Course> {
+    const [course] = await db.insert(courses).values(insertCourse).returning();
+    return course;
+  }
+
+  async updateCourse(id: number, courseData: Partial<Course>): Promise<Course | undefined> {
+    const [updatedCourse] = await db.update(courses)
+      .set(courseData)
+      .where(eq(courses.id, id))
+      .returning();
+    return updatedCourse;
+  }
+
+  async deleteCourse(id: number): Promise<boolean> {
+    const [deletedCourse] = await db.delete(courses)
+      .where(eq(courses.id, id))
+      .returning();
+    return !!deletedCourse;
+  }
+  
+  // Enrollment operations
+  async getEnrollment(id: number): Promise<Enrollment | undefined> {
+    const [enrollment] = await db.select().from(enrollments).where(eq(enrollments.id, id));
+    return enrollment || undefined;
+  }
+
+  async getEnrollmentsByCourse(courseId: number): Promise<Enrollment[]> {
+    return await db.select().from(enrollments).where(eq(enrollments.courseId, courseId));
+  }
+
+  async getEnrollmentsByStudent(studentId: number): Promise<Enrollment[]> {
+    return await db.select().from(enrollments).where(eq(enrollments.studentId, studentId));
+  }
+
+  async createEnrollment(insertEnrollment: InsertEnrollment): Promise<Enrollment> {
+    const enrollment = {
+      ...insertEnrollment,
+      enrollmentDate: new Date().toISOString(),
+    };
+    const [newEnrollment] = await db.insert(enrollments).values(enrollment).returning();
+    return newEnrollment;
+  }
+
+  async updateEnrollment(id: number, enrollmentData: Partial<Enrollment>): Promise<Enrollment | undefined> {
+    const [updatedEnrollment] = await db.update(enrollments)
+      .set(enrollmentData)
+      .where(eq(enrollments.id, id))
+      .returning();
+    return updatedEnrollment;
+  }
+
+  async deleteEnrollment(id: number): Promise<boolean> {
+    const [deletedEnrollment] = await db.delete(enrollments)
+      .where(eq(enrollments.id, id))
+      .returning();
+    return !!deletedEnrollment;
+  }
+  
+  // Assignment operations
+  async getAssignment(id: number): Promise<Assignment | undefined> {
+    const [assignment] = await db.select().from(assignments).where(eq(assignments.id, id));
+    return assignment || undefined;
+  }
+
+  async getAssignmentsByCourse(courseId: number): Promise<Assignment[]> {
+    return await db.select().from(assignments).where(eq(assignments.courseId, courseId));
+  }
+
+  async createAssignment(insertAssignment: InsertAssignment): Promise<Assignment> {
+    const [assignment] = await db.insert(assignments).values(insertAssignment).returning();
+    return assignment;
+  }
+
+  async updateAssignment(id: number, assignmentData: Partial<Assignment>): Promise<Assignment | undefined> {
+    const [updatedAssignment] = await db.update(assignments)
+      .set(assignmentData)
+      .where(eq(assignments.id, id))
+      .returning();
+    return updatedAssignment;
+  }
+
+  async deleteAssignment(id: number): Promise<boolean> {
+    const [deletedAssignment] = await db.delete(assignments)
+      .where(eq(assignments.id, id))
+      .returning();
+    return !!deletedAssignment;
+  }
+  
+  // Submission operations
+  async getSubmission(id: number): Promise<Submission | undefined> {
+    const [submission] = await db.select().from(submissions).where(eq(submissions.id, id));
+    return submission || undefined;
+  }
+
+  async getSubmissionsByAssignment(assignmentId: number): Promise<Submission[]> {
+    return await db.select().from(submissions).where(eq(submissions.assignmentId, assignmentId));
+  }
+
+  async getSubmissionsByStudent(studentId: number): Promise<Submission[]> {
+    return await db.select().from(submissions).where(eq(submissions.studentId, studentId));
+  }
+
+  async getSubmissionByAssignmentAndStudent(assignmentId: number, studentId: number): Promise<Submission | undefined> {
+    const [submission] = await db.select().from(submissions)
+      .where(and(
+        eq(submissions.assignmentId, assignmentId),
+        eq(submissions.studentId, studentId)
+      ));
+    return submission || undefined;
+  }
+
+  async createSubmission(insertSubmission: InsertSubmission): Promise<Submission> {
+    const submission = {
+      ...insertSubmission,
+      submissionDate: new Date().toISOString(),
+      status: "submitted",
+    };
+    const [newSubmission] = await db.insert(submissions).values(submission).returning();
+    return newSubmission;
+  }
+
+  async updateSubmission(id: number, submissionData: Partial<Submission>): Promise<Submission | undefined> {
+    const [updatedSubmission] = await db.update(submissions)
+      .set(submissionData)
+      .where(eq(submissions.id, id))
+      .returning();
+    return updatedSubmission;
+  }
+
+  async deleteSubmission(id: number): Promise<boolean> {
+    const [deletedSubmission] = await db.delete(submissions)
+      .where(eq(submissions.id, id))
+      .returning();
+    return !!deletedSubmission;
+  }
+  
+  // Announcement operations
+  async getAnnouncement(id: number): Promise<Announcement | undefined> {
+    const [announcement] = await db.select().from(announcements).where(eq(announcements.id, id));
+    return announcement || undefined;
+  }
+
+  async getAnnouncements(): Promise<Announcement[]> {
+    return await db.select().from(announcements);
+  }
+
+  async getAnnouncementsByCourse(courseId: number): Promise<Announcement[]> {
+    return await db.select().from(announcements).where(eq(announcements.courseId, courseId));
+  }
+
+  async createAnnouncement(insertAnnouncement: InsertAnnouncement): Promise<Announcement> {
+    const announcement = {
+      ...insertAnnouncement,
+      datePosted: new Date().toISOString(),
+    };
+    const [newAnnouncement] = await db.insert(announcements).values(announcement).returning();
+    return newAnnouncement;
+  }
+
+  async updateAnnouncement(id: number, announcementData: Partial<Announcement>): Promise<Announcement | undefined> {
+    const [updatedAnnouncement] = await db.update(announcements)
+      .set(announcementData)
+      .where(eq(announcements.id, id))
+      .returning();
+    return updatedAnnouncement;
+  }
+
+  async deleteAnnouncement(id: number): Promise<boolean> {
+    const [deletedAnnouncement] = await db.delete(announcements)
+      .where(eq(announcements.id, id))
+      .returning();
+    return !!deletedAnnouncement;
+  }
+
+  // Seed initial data
+  async seedData(): Promise<void> {
+    try {
+      // Check if we have users
+      const userCount = await db.select({ count: sql<number>`count(*)` }).from(users);
+      
+      if (userCount[0].count === 0) {
+        console.log("Seeding database...");
+        
+        // Seed users using separate insert statements to avoid array issues
+        console.log("Seeding users...");
+        const adminUser = await db.insert(users).values({
+          username: "admin",
+          password: "password123",
+          firstName: "Admin",
+          lastName: "User",
+          email: "admin@edulearn.com",
+          role: "admin"
+        }).returning();
+        console.log("Admin user created:", adminUser[0].id);
+        
+        const faculty1 = await db.insert(users).values({
+          username: "faculty1",
+          password: "password123",
+          firstName: "Faculty",
+          lastName: "One",
+          email: "faculty1@edulearn.com",
+          role: "faculty",
+          department: "Computer Science"
+        }).returning();
+        console.log("Faculty 1 created:", faculty1[0].id);
+        
+        const faculty2 = await db.insert(users).values({
+          username: "faculty2",
+          password: "password123",
+          firstName: "Faculty",
+          lastName: "Two",
+          email: "faculty2@edulearn.com",
+          role: "faculty",
+          department: "Mathematics"
+        }).returning();
+        console.log("Faculty 2 created:", faculty2[0].id);
+        
+        const student1 = await db.insert(users).values({
+          username: "student1",
+          password: "password123",
+          firstName: "Student",
+          lastName: "One",
+          email: "student1@edulearn.com",
+          role: "student",
+          department: "Computer Science"
+        }).returning();
+        console.log("Student 1 created:", student1[0].id);
+        
+        const student2 = await db.insert(users).values({
+          username: "student2",
+          password: "password123",
+          firstName: "Student",
+          lastName: "Two",
+          email: "student2@edulearn.com",
+          role: "student",
+          department: "Mathematics"
+        }).returning();
+        console.log("Student 2 created:", student2[0].id);
+
+        // Seed courses
+        console.log("Seeding courses...");
+        const course1 = await db.insert(courses).values({
+          code: "CS101",
+          name: "Introduction to Programming",
+          description: "An introductory course to programming concepts using JavaScript",
+          facultyId: faculty1[0].id,
+          semester: "Fall",
+          year: 2023,
+          status: "active",
+          startDate: new Date("2023-09-01"),
+          endDate: new Date("2023-12-15")
+        }).returning();
+        console.log("Course 1 created:", course1[0].id);
+        
+        const course2 = await db.insert(courses).values({
+          code: "CS332",
+          name: "Advanced Web Development",
+          description: "Advanced web development techniques with React and Node.js",
+          facultyId: faculty1[0].id,
+          semester: "Fall",
+          year: 2023,
+          status: "active",
+          startDate: new Date("2023-09-01"),
+          endDate: new Date("2023-12-15")
+        }).returning();
+        console.log("Course 2 created:", course2[0].id);
+        
+        const course3 = await db.insert(courses).values({
+          code: "CS310",
+          name: "Database Systems",
+          description: "Introduction to database design and implementation",
+          facultyId: faculty1[0].id,
+          semester: "Fall",
+          year: 2023,
+          status: "active",
+          startDate: new Date("2023-09-01"),
+          endDate: new Date("2023-12-15")
+        }).returning();
+        console.log("Course 3 created:", course3[0].id);
+        
+        const course4 = await db.insert(courses).values({
+          code: "MATH201",
+          name: "Calculus II",
+          description: "Integral calculus and its applications",
+          facultyId: faculty2[0].id,
+          semester: "Fall",
+          year: 2023,
+          status: "active",
+          startDate: new Date("2023-09-01"),
+          endDate: new Date("2023-12-15")
+        }).returning();
+        console.log("Course 4 created:", course4[0].id);
+
+        // Seed enrollments
+        console.log("Seeding enrollments...");
+        await db.insert(enrollments).values({
+          studentId: student1[0].id,
+          courseId: course1[0].id,
+          enrollmentDate: new Date(),
+          status: "active",
+          progress: 0,
+          grade: null
+        }).returning();
+        
+        await db.insert(enrollments).values({
+          studentId: student1[0].id,
+          courseId: course2[0].id,
+          enrollmentDate: new Date(),
+          status: "active",
+          progress: 0,
+          grade: null
+        }).returning();
+        
+        await db.insert(enrollments).values({
+          studentId: student1[0].id,
+          courseId: course3[0].id,
+          enrollmentDate: new Date(),
+          status: "active",
+          progress: 0,
+          grade: null
+        }).returning();
+        
+        await db.insert(enrollments).values({
+          studentId: student2[0].id,
+          courseId: course2[0].id,
+          enrollmentDate: new Date(),
+          status: "active",
+          progress: 0,
+          grade: null
+        }).returning();
+        
+        await db.insert(enrollments).values({
+          studentId: student2[0].id,
+          courseId: course4[0].id,
+          enrollmentDate: new Date(),
+          status: "active",
+          progress: 0,
+          grade: null
+        }).returning();
+        console.log("Enrollments created");
+
+        // Seed assignments
+        console.log("Seeding assignments...");
+        const assignment1 = await db.insert(assignments).values({
+          courseId: course1[0].id,
+          title: "Basic HTML/CSS Project",
+          description: "Create a simple webpage using HTML and CSS",
+          type: "project",
+          dueDate: new Date("2023-10-15"),
+          totalPoints: 100,
+          status: "published",
+          instructions: "Create a personal portfolio webpage with at least 3 sections."
+        }).returning();
+        
+        const assignment2 = await db.insert(assignments).values({
+          courseId: course2[0].id,
+          title: "React Component Library",
+          description: "Build a reusable component library in React",
+          type: "project",
+          dueDate: new Date("2023-10-22"),
+          totalPoints: 150,
+          status: "published",
+          instructions: "Create a library with at least 5 reusable components."
+        }).returning();
+        
+        const assignment3 = await db.insert(assignments).values({
+          courseId: course3[0].id,
+          title: "Database Design Exercise",
+          description: "Design a relational database for an e-commerce system",
+          type: "assignment",
+          dueDate: new Date("2023-10-05"),
+          totalPoints: 80,
+          status: "published",
+          instructions: "Create an ER diagram and implement it using SQL."
+        }).returning();
+        
+        const assignment4 = await db.insert(assignments).values({
+          courseId: course4[0].id,
+          title: "Integration Techniques",
+          description: "Solve problems using various integration techniques",
+          type: "assignment",
+          dueDate: new Date("2023-10-10"),
+          totalPoints: 100,
+          status: "published",
+          instructions: "Solve all the problems in the attached PDF."
+        }).returning();
+        console.log("Assignments created");
+
+        // Seed announcements
+        console.log("Seeding announcements...");
+        await db.insert(announcements).values({
+          courseId: course1[0].id,
+          title: "Welcome to Introduction to Programming",
+          content: "Welcome to the course! Please review the syllabus and prepare for our first class.",
+          userId: faculty1[0].id,
+          datePosted: new Date(),
+          isGlobal: false
+        }).returning();
+        
+        await db.insert(announcements).values({
+          courseId: course2[0].id,
+          title: "Midterm Project Details",
+          content: "The midterm project details have been posted. Please review and start planning your work.",
+          userId: faculty1[0].id,
+          datePosted: new Date(),
+          isGlobal: false
+        }).returning();
+        
+        await db.insert(announcements).values({
+          courseId: course3[0].id,
+          title: "Guest Lecture Next Week",
+          content: "We'll have a guest lecture from a database architect next week. Attendance is mandatory.",
+          userId: faculty1[0].id,
+          datePosted: new Date(),
+          isGlobal: false
+        }).returning();
+        
+        await db.insert(announcements).values({
+          courseId: course4[0].id,
+          title: "Study Group Formation",
+          content: "Please form study groups of 3-4 students for the upcoming collaborative assignments.",
+          userId: faculty2[0].id,
+          datePosted: new Date(),
+          isGlobal: false
+        }).returning();
+        console.log("Announcements created");
+        
+        console.log("Database seeding completed!");
+      } else {
+        console.log("Database already seeded. Skipping seed process.");
+      }
+    } catch (error) {
+      console.error("Error seeding database:", error);
+      throw error;
+    }
+  }
+}
+
+export const storage = new DatabaseStorage();
+
+// Initialize the database with seed data
+storage.seedData().catch(console.error);

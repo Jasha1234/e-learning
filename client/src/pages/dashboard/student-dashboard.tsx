@@ -51,9 +51,9 @@ export default function StudentDashboard() {
         </div>
         <div className="mt-4 md:mt-0 flex space-x-3">
           <Link href="/student/courses">
-            <a className="btn-primary">
+            <div className="btn-primary cursor-pointer">
               <i className="ri-search-line mr-2"></i> Browse Courses
-            </a>
+            </div>
           </Link>
         </div>
       </div>
@@ -180,9 +180,9 @@ export default function StudentDashboard() {
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm">
                       <Link href={`/student/assignments/${index + 1}`}>
-                        <a className="px-3 py-1 bg-primary text-white rounded-lg text-xs">
+                        <div className="px-3 py-1 bg-primary text-white rounded-lg text-xs cursor-pointer">
                           Start Assignment
-                        </a>
+                        </div>
                       </Link>
                     </td>
                   </tr>
@@ -214,9 +214,9 @@ export default function StudentDashboard() {
             <div className="col-span-3 text-center py-12">
               <p className="text-gray-500">You are not enrolled in any courses yet.</p>
               <Link href="/student/courses">
-                <a className="btn-primary mt-4 inline-block">
+                <div className="btn-primary mt-4 inline-block cursor-pointer">
                   <i className="ri-search-line mr-2"></i> Browse Courses
-                </a>
+                </div>
               </Link>
             </div>
           ) : (
@@ -268,7 +268,7 @@ export default function StudentDashboard() {
                     </div>
                     <div className="mt-4 border-t pt-4 flex justify-between">
                       <Link href={`/student/courses/${course.id}`}>
-                        <a className="text-sm text-primary font-medium">View Course</a>
+                        <div className="text-sm text-primary font-medium cursor-pointer">View Course</div>
                       </Link>
                       <button className="text-sm text-gray-600 font-medium">Materials</button>
                       <button className="text-sm text-gray-600 font-medium">Grades</button>
